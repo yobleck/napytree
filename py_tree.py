@@ -1,5 +1,5 @@
 #yobleck
-import math, time;
+import math;
 class Node(): #
     def __init__(self, data, iparent=None): #initializing...
         self.data = data; #value of node
@@ -18,22 +18,32 @@ class Node(): #
 
 ##############################    
     
-    def add_child(self, cdata):
+    def create_child(self, cdata):
         if(isinstance(cdata, Node)): #child is automatically made a node and user input is the data value of said node
-            print("ERROR: child data value can't be a node to avoid confusion");
+            print("ERROR: child data value can not be of node object type");
         else:
             self.children.append(Node(cdata, self));
 
 ##############################
 
+    def add_child(self, cnode):
+        if(not isinstance(cnode, Node)):
+            print("ERROR: child must be of node object type");
+        else:
+            self.children.append(cnode);
+
+############################## TODO: disconnect_child and delete_child methods?
+
+    def get_parent(self):
+        return self.parent;
+    
+##############################    
+    
     def set_parent(self, new_parent):
         if(isinstance(new_parent, Node)):
             self.parent = new_parent;
-
-##############################    
-    
-    def get_parent(self):
-        return self.parent;
+        else:
+            print("ERROR: parent must be of node object type");
 
 ##############################
 
@@ -50,7 +60,7 @@ class Node(): #
 
 ##############################
     
-    def search(self, param): #jank af, gathers all nodes then searches linearly. do I need tier?
+    def search(self, param): #jank af, gathers all nodes then searches linearly
         node_list = []; #stores return values from children
         if(self.data == param): #check if parent is param
             return self; #print("found", self, self.data);
@@ -80,6 +90,11 @@ class Node(): #
         print(self.data);
         for x in self.children:
             x.show(tier+1);
+
+##############################
+
+    def export_to_json(self): #TODO: write to JSON
+        pass;
 
 ##############################
     
@@ -133,17 +148,17 @@ class Node(): #
             
             if(return_type == "tree" and tree_style == "two_branch"): #return new tree with root = NCP for start and stop
                 walk_tree = Node(start_list_data[-1]); #create root node
-                walk_tree.add_child(start_list_data[-2]); #initialize start branch
-                walk_tree.add_child(stop_list_data[-2]); #initialize stop branch
+                walk_tree.create_child(start_list_data[-2]); #initialize start branch
+                walk_tree.create_child(stop_list_data[-2]); #initialize stop branch
                 
                 temp_node = walk_tree.list_children()[0];
                 for i in reversed(start_list_data[:-2]): #loop to branch left down start_list_data
-                    temp_node.add_child(i);
+                    temp_node.create_child(i);
                     temp_node = temp_node.list_children()[0];
                     
                 temp_node1 = walk_tree.list_children()[1];
                 for i in reversed(stop_list_data[:-2]): #loop to branch right down stop_list_data
-                    temp_node1.add_child(i);
+                    temp_node1.create_child(i);
                     temp_node1 = temp_node1.list_children()[0];
                 return walk_tree;
             
@@ -152,11 +167,25 @@ class Node(): #
                 output_list.extend(reversed(stop_list_data[0:len(stop_list_data)-1])); #reverse of stop list not including NCP
                 return output_list;
 
-##############################
-    #TODO:merge trees method. should this be a function outside of node? use add_child and set_parent
+############################################################ end of class
     
+#TODO: merge trees method. should this be a function outside of node? use add_child and set_parent
+def merge(merge_parent, merge_child):
+    if(not isinstance(merge_parent, Node) or not isinstance(merge_child, Node)):
+        print("ERROR: can not merge non node objects");
+    elif(merge_child.get_parent() != None):
+        print("it is not recommended to use this function to disconnect a child from an existing tree");
+    else:
+        merge_parent.add_child(merge_child);
+        merge_child.set_parent(merge_parent);
 
+#TODO: read from JSON
+def import_tree_from_json(jnode): #object to python dictionary to JSON?
+    pass;
+  
 
+#for testing
+"""
 test = Node(5);
 test.add_child(Node(6));
 test.add_child(Node(10));
@@ -167,4 +196,5 @@ print(test.get_data());
 print(test.list_children());
 print(test.list_child_data());
 print(test.search(11).get_data());
-test.show(); 
+test.show();
+"""
